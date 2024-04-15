@@ -1,0 +1,114 @@
+---
+title: "HW3"
+author: "Zhouling Shen"
+date: "2023-10-23"
+output: html_document
+---
+#Question 1
+#part a: State the multiple regression model
+```{r}
+df_communityBanks <- read.csv("CommunityBanks.csv")
+sprintf("ROAA = \u03B2\u2080 + \u03B2\u2081 efficiency ratio + \u03B2\u2082 total risk_based capital + u")
+```
+#part b:Using the data, create the estimated multiple regression model.
+```{r}
+### Develop the multiple regression model.
+RoaaModel <- lm(ROAA.... ~ Efficiency.Ratio....+ Total.Risk.Based.Capital.Ratio....,
+                           data = df_communityBanks)
+anova(RoaaModel)
+
+summary(RoaaModel)
+sprintf("ROAÂ = 1.395984 - 0.011730 efficiency Ratio + 0.028612 total risk based capital ratio")
+```
+#part c:
+```{r}
+sprintf("H\u2080: \u03B2\u2081 = \u03B2\u2082 = 0")
+sprintf("H\u2081: at least 1 \u03B2 is not zero")
+
+sprintf("The F-statistic is 37.84 and p-value is smaller than our significance level, so we reject the null hypothesis. The overall model is valid.")
+```
+#part d:
+```{r}
+#for efficiency ratio#####################################################################################################################################
+sprintf("H\u2080: \u03B2\u2081 = 0")
+sprintf("H\u2081: \u03B2\u2081 ≠ 0")
+
+sprintf("The p-value is smaller than our significance level, so we reject the null hypothesis. so there is a strong evidence to support that the efficiency ratio makes a significant contribution to the regression model, so it should be included in the model")
+
+#for total risk-based capital ###########################################################################################################################
+sprintf("H\u2080: \u03B2\u2082 = 0")
+sprintf("H\u2081: \u03B2\u2082 ≠ 0")
+
+sprintf("The p-value is smaller than our significance level, so we reject the null hypothesis. so there is a strong evidence to support that the total risk-based capital makes a significant contribution to the regression model, so it should be included in the model")
+```
+#part e:  Interpret the partial slope coefficients.
+```{r}
+
+sprintf("ROAÂ = 1.395984 - 0.011730 efficiency Ratio + 0.028612 total risk based capital ratio")
+
+sprintf("β̂₁ = -0.011730 For every 1 percent increase in additional efficiency ratio, the estimatd ROAA decreases as a percentage by 0.011730, assuming other independent variables stay constant")
+
+sprintf("β̂₂ = 0.028612 For every 1 percent increase in additional total risk based capital ratio, the estimated ROAA increases as a percentage by 0.028612, assuming other independent variables stay constant")
+```
+#part f:
+```{r}
+sprintf("R\u00B2 is around 0.2785, which means 27.85 percent of variation in the ROAA (percentage) is explained by the model. The remaining 72.15 percent is unexplained")
+```
+#part g:
+```{r}
+sprintf("The adjusted R\u00B2 is around 0.2712 ")
+```
+#part i:
+```{r}
+predict(RoaaModel, 
+        data.frame(Efficiency.Ratio.... = 60, Total.Risk.Based.Capital.Ratio.... = 15), 
+        interval = "confidence", 
+        level = 0.95)
+sprintf("95 percent CI for ROAA in percentage is (1.079832, 1.162896). we are 95 percent confident that ROAA in percentage  with efficiency ratio of 60 percent and the total risk-based capital of 15 percent is between 1.079832  percent and 1.162896 percent")
+
+predict(RoaaModel, 
+        data.frame(Efficiency.Ratio.... = 60, Total.Risk.Based.Capital.Ratio.... = 15), 
+        interval = "prediction", 
+        level = 0.95)
+sprintf("95 percent PI for ROAA in percentage is (0.5678616 , 1.674866). we are 95 percent confident that ROAA in percentage for a particular community bank with efficiency ratio of 60 percent and the total risk-based capital of 15 percent is between 0.5678616  percent and 1.674866 percent")
+
+```
+
+#Question 2
+```{r}
+MedicalCo <- read.csv("MedicalCo.csv")
+
+
+sprintf("H\u2080: \u03B2\u2083 = \u03B2\u2084 = 0")
+sprintf("H\u2081: at least 1 \u03B2 is not zero")
+
+fullmodel <- lm(SALES ~ ., data = MedicalCo)
+reducedmodel <- lm(SALES ~ ADV + BONUS, data = MedicalCo)
+
+
+f <- anova(fullmodel)
+r <- anova(reducedmodel)
+
+summary(fullmodel)
+summary(reducedmodel)
+
+sprintf("estimated multiple regression equation: sales_hat = -593.5375 + 2.5131 advertising + 1.9059 Bonus + 2.6510 market_shares - 0.1207 competitor_sales")
+
+SSE_F <- f$`Sum Sq`[5]
+SSE_R <- r$`Sum Sq`[3]
+MSE_F <- f$`Mean Sq`[5]
+
+Num <- (SSE_R - SSE_F)/2
+Den <- MSE_F
+Partial_F_stat <- Num/Den
+
+pf(Partial_F_stat, 2, nrow(MedicalCo)-4-1, lower.tail = FALSE)
+sprintf("The p-value is bigger than our significant level, so we fail to reject the null hypothesis. we conclude that the reduced model is better, so we infer at at 0.05 significance level, the market shares and largest competitor's sales don't have a statistically significant influence on sales and should not be included in the analysis")
+
+### Partial R-squared
+### SSE(reduced) = 181176    
+### SSE (full) = 175855    
+(partial_r_sq <- (181176 - 175855)/181176)
+sprintf("The additional independent variables - market shares and competitor's sales - in the complete model explain 2.9 percent of the unexplained variation in the reduced model by advertising and bonuses.")
+```
+

@@ -1,0 +1,175 @@
+---
+title: "HW2"
+author: "Zhouling Shen"
+date: "2023-10-16"
+output: html_document
+---
+#Question 1
+#part a: Create a scatterplot for the level of sales on the number of shelf feet. Does the relationship appear linear?
+#Do you think that it ought to be linear?
+
+```{r}
+Display_space <- read.csv("Display Space.csv")
+
+plot(Display_space$Display.Feet, Display_space$Sales, 
+     main = "Display feet versus Sales", 
+     xlab = "Display feet", ylab = "Sales")
+abline(lm(Display_space$Sales ~ Display_space$Display.Feet))
+scatter.smooth(x=Display_space$Display.Feet, y=Display_space$Sales, main="Sales ~ Display.Feet")  # scatterplot
+
+cor(Display_space$Display.Feet, Display_space$Sales)
+
+sprintf("The relationship doesn't seem to appear linear based on the scatterplot and it is not to be linear as Initial levels of advertising often bring a larger response in the market than later spending, and when the levels of advertising increases to a certain point, the sales does not necessarily go up with the same rate")
+```
+
+#part b: Fit a linear regression equation to the data, regressing sales on the number of shelf feet. Does this fitted
+#model make substantive sense? What do the slope and intercept tell you?
+```{r}
+sprintf("H\u2080:  β₀ = 0")
+sprintf("H\u2081:  β₀ ≠ 0")
+sprintf("H\u2080:  β₁ = 0")
+sprintf("H\u2081:  β₁ ≠ 0")
+
+cor.test(Display_space$Display.Feet, Display_space$Sales, 
+         alternative = "two.sided", 
+         method = "pearson")
+
+Display_feet <- Display_space$Display.Feet
+sales <- Display_space$Sales
+lm.space <- lm(sales ~ Display_feet)
+anova(lm.space)
+summary(lm.space)
+
+sprintf("The linear regression equation: Sales= 93.03 + 39.76 * Display_feet")
+
+sprintf("The correlation coefficient and the fitted model shows a relatively strong linear relationship, the p-value indicates that the correlation is statistically significant. However, based on the scatterplot above it shows signs of nonlinear relationship. This doesn't make much sense. ")
+
+sprintf("The intercept of 93.03 means that when the display feet is 0 the sales is $93.03 on average per week which doesn't make sense")
+sprintf("The slope of 39.76 means that for every additional display feet, the sales increases by $39.76")
+```
+
+#part c:Create a scatterplot that shows the relationship between the new set of variables. Does the
+#relationship seem more linear than in part (a)? Fit a linear regression equation to the transformed data.
+#What do the slope and intercept tell you?
+```{r}
+sprintf("H\u2080:  β₀ = 0")
+sprintf("H\u2081:  β₀ ≠ 0")
+sprintf("H\u2080:  β₁ = 0")
+sprintf("H\u2081:  β₁ ≠ 0")
+
+Log_DisplayFeet <- log(Display_space$Display.Feet)
+
+plot(Log_DisplayFeet, Display_space$Sales, main = "log Display feet versus Sales", 
+     xlab = "log Display feet", ylab = "Sales")
+abline(lm(Display_space$Sales ~ Log_DisplayFeet))
+scatter.smooth(x=Log_DisplayFeet, y=Display_space$Sales, main="Sales ~ log Display feet")  # scatterplot
+
+sprintf("The relationship does look more linear than in part a")
+
+#### Regression Model ####
+sales <- Display_space$Sales
+
+lm.spaceSales <- lm(sales ~ Log_DisplayFeet)
+
+anova(lm.spaceSales)
+
+summary(lm.spaceSales)
+
+sprintf("The linear regression equation: Sales = 83.56 + 138.621 * log_Display_feet")
+sprintf("The intercept of 83.56 means that when the log display feet is 0, the sales is $83.56 per week, which makes sense as log1=0")
+sprintf("The slope of 138.621 means that when the log display feet increases by 1, the sales increases by $138.621")
+
+```
+#part d:Compare the fit of the two models to the data. Use R2, the model standard error, and draw any inferences about the slope to check. Which of the two models provide a better description of the pattern in the data?
+```{r}
+sprintf("The second model has bigger R square(0.8153) and lower standard error(41.31), whereas the first model has smaller R square(0.712) and higher standard error(51.59). The inference that can be drew about the slope is that when the log shelf display space is 0, the weekly total sales increases by $138.621. The second model fits better. ")
+```
+
+#Question 2
+##part a: 
+```{r}
+Turnover <- read.csv("Turnover.csv")
+
+sprintf("H\u2080:  β₀ = 0")
+sprintf("H\u2081:  β₀ ≠ 0")
+sprintf("H\u2080:  β₁ = 0")
+sprintf("H\u2081:  β₁ ≠ 0")
+
+#### Regression Model ###
+age <- Turnover$Age
+employment <- Turnover$Employment
+lm.Employ <- lm(employment ~ age)
+
+## Display the ANOVA table containing the SS information
+anova(lm.Employ)
+
+## Display the Coefficients information
+summary(lm.Employ)
+
+
+sprintf("The p-value is small so we reject the null hypothesis, which means that there is some negative correlation between employment and age")
+
+```
+
+##part b
+```{r}
+# employment = 30.633 - 0.11692 * age
+sprintf("The intercept of 30.633 means that when age is 0, workers work for 30.633 weeks before quitting")
+sprintf("The slope of -0.11692 means that when age increases by 1, the number of weeks workers work before quitting decreases by 0.11692 weeks ")
+```
+
+#Part c AND D:
+```{r}
+## Prediction Interval
+predict(lm.Employ, data.frame(age = 22), interval = "prediction", level = 0.95)
+## Interpretation:
+sprintf("We are 95 percent confident that the interval between 24.33 and 31.79 weeks contains the predicted how long the 22-year old telemarketer will stay with the company")
+
+## Confidence Interval
+predict(lm.Employ, data.frame(age = 22), interval = "confidence", level = 0.95)
+## Interpretation:
+sprintf("We are 95 percent confident that the interval between 27.13 and 28.99 weeks contains the on average how long 22-year old telemarketers will stay with the company ")
+```
+
+#Question 3
+#part a: 
+```{r}
+Caterpillar <- read.csv("Caterpillar.csv")
+
+sprintf("H\u2080:  β₁ \u2264 1")
+sprintf("H\u2081:  β₁ > 1")
+sprintf("H\u2080:  β₀ = 0")
+sprintf("H\u2081:  β₀ ≠ 0")
+
+R_Minus_Rf <- Caterpillar$Cat_Adj
+Rm_Minus_Rf <- Caterpillar$Market_Adj
+
+lm.CAPM <- lm(R_Minus_Rf ~ Rm_Minus_Rf)
+
+anova(lm.CAPM)
+
+summary(lm.CAPM)
+
+sprintf("The intercept is 1.5804, which means that when the market adjusted return is 0, the risk-adjusted return of Caterpillar is 1.58 percent. The slope is 1.7584 which means that when the market adjusted return increases 1 percent, the risk-adjusted return of Caterpillar increases by 1.7584 percent.   ")
+```
+
+#part b: 
+```{r}
+sprintf("H\u2080:  β₁ \u2264 1")
+sprintf("H\u2081:  β₁ > 1")
+t_critical <- qt(0.05, 60-1-1, lower.tail = FALSE)
+t_critical
+
+t_test_stat <- (1.7584 - 1)/0.1843
+t_test_stat
+
+sprintf("Since the t_test_stat is greater than the t_critical, for a right-tailed test we reject null hypothesis. We infer at 5 percent significance level that the investment in Caterpillar is riskier than the market.")
+```
+#part c:
+```{r}
+sprintf("H\u2080:  β₀ = 0")
+sprintf("H\u2081:  β₀ ≠ 0")
+sprintf("The p-value for the intercept is 0.0945 which is greater than our significance level, therefore we fail to reject the null hypothesis. so at the 5 percent significance level, we can infer that there is no evidence of abnormal returns")
+
+```
+

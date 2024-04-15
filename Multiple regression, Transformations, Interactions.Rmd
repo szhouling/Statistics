@@ -1,0 +1,849 @@
+---
+title: "HW4"
+author: "Zhouling Shen"
+date: "2023-11-15"
+output: html_document
+---
+
+#Question 1
+```{r}
+Electronics <- read.csv("Electronics.csv")
+
+## Create dummy variables
+st_Dummy <- ifelse(Electronics$Location == "Street", 1, 0)   
+mall_Dummy <- ifelse(Electronics$Location == "Mall", 1, 0)
+dt_Dummy <- ifelse(Electronics$Location == "Downtown", 1, 0)
+
+sprintf("Y = \u03B2\u2081 + \u03B2\u2082 * D2 + \u03B2\u2083 * D3 + \u03B2\u2084 * X + u")
+sprintf("y is the Sales, D2 = 1 if the store is in a mall =0 Otherwise. D3 = 1 if the store is in downtown, =0 otherwise. X is the number of households")
+
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2084 = 0")
+sprintf("H\u2081:  \u03B2\u2084 ≠ 0")
+
+model_Electronics <- lm(Sales ~ mall_Dummy + dt_Dummy + 
+                                      Households, data = Electronics)
+
+summary(model_Electronics)
+sprintf("E(Sales) = 14.98 + 28.37 mall_dummy + 6.864 downtown_dummy + 0.869 households")
+
+sprintf("(Intercept): The estimate for the intercept is approximately 14.98. This represents the expected value of Sales on the street is 14.98 thousands of dollars.
+
+mall_Dummy: The estimate for 'mall_Dummy' is about 28.37. This suggests that, holding other variables constant, stores located in a mall have their sales increased by an average of $28,370 compared to stores on the street. 
+
+dt_Dummy: The estimate for 'dt_Dummy' is approximately 6.86. This implies that, holding other factors constant, stores in downtown locations see an average increase in sales of $6,860 compared to street locations. ")
+
+confint(model_Electronics, level=0.95)
+
+sprintf("(Intercept): The intercept's confidence interval ranges from approximately 1.36 to 28.99. This value represents the expected value of Sales, in thousands of dollars, on the street with 95 percent confidence.
+
+mall_Dummy: The coefficient for 'mall_Dummy' has a confidence interval ranging from approximately 18.55 to 38.19. This means we are 95 percent confident that the true effect of a store being in a mall on sales is between an increase of about $18,550 to $38,190 as opposed to those on the Street, when holding the number of households constant.
+
+dt_Dummy: The 'dt_Dummy' has a confidence interval ranging from approximately -3.63  to 17.363 This means we are 95 percent confident that the sales difference betwee street and downtown is between - $3630 and $17363 , when holding the number of households constant.As the confidence interval contains zero, this could mean that the sales on the street and the sames in downtwon is not significantly different. ")
+
+```
+
+# Question 2
+#part a: 
+```{r}
+WinterFun <- read.csv("WinterFun.csv")
+
+sprintf("Linear trend model: Sales = \u03B2\u2081 + \u03B2\u2082 * t + u")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+
+trend_model <- lm(SALES ~ TIME, data = WinterFun)
+summary(trend_model)
+
+sprintf("estimated regression equation: Sales_hat = 199.017 + 2.556 * t")
+
+sprintf("The p-value for intercept is smaller than any possible significant level, we reject the null hypothesis and it shows that the intercept is significantly different from 0")
+sprintf("The p-value for Quarter 3.42e-14 is smaller than any possible significant level, we reject the null hypothesis and it shows that the slope coefficiet is significantly different from 0, there is a linear relationship between sales and time")
+```
+
+# part b: 
+```{r}
+
+## Create a time-series plot
+# Store the values
+Time <- WinterFun$TIME
+Sales <- WinterFun$SALES
+
+# Create a line chart
+plot(Time, Sales,
+     type = "l",
+     xlab = "Time",
+     ylab = "Sales (in thousands)",
+     main = "Sales of winter sports merchandise",
+     col = "blue")
+sprintf("The dataset gives information on the sales (in thousands) for the winter sports merchandise from the first quarter of 2008 to the fourth quarter of 2017, a total of 40 quarters.
+The time series plot shows some evidence of seasonality.It looks like for each year the sales goes down first two season and then goes up the last two seasons")
+```
+
+# part c: 
+```{r}
+## Create dummy variables
+Q1 <- ifelse(WinterFun$QUARTER == 1, 1, 0)   
+Q2 <- ifelse(WinterFun$QUARTER == 2, 1, 0)
+Q3 <- ifelse(WinterFun$QUARTER == 3, 1, 0)
+Q4 <- ifelse(WinterFun$QUARTER == 4, 1, 0)
+```
+
+# part d: 
+```{r}
+sprintf("Full Model:Y = \u03B2\u2081 + \u03B2\u2082 * D2 + \u03B2\u2083 * D3 + \u03B2\u2084 * D4 + \u03B2\u2085 * t + u ")
+sprintf("For above,  D2 = 1 if its Q2, = 0 otherwise, same for D3, D4 for Q3 and Q4, whereas Q1 is the base, and \u03B2\u2082, \u03B2\u2083, \u03B2\u2084 are the corresponding coefficients, t is the Time variable, and Y is the sales")
+sprintf("Reduced Model: Y = \u03B2\u2081 + \u03B2\u2082 * t + u")
+
+# for full model
+sprintf("H\u2080: \u03B2\u2082 = \u03B2\u2083 = \u03B2\u2084 = 0")
+sprintf("H\u2081: at least 1 \u03B2 is not zero")
+
+fullmodel <- lm(WinterFun$SALES ~ Q2 + Q3 + Q4 + TIME, data = WinterFun)
+reducedmodel <- lm(SALES ~ TIME, data = WinterFun)
+
+f <- anova(fullmodel) #indicator variables
+r <- anova(reducedmodel) #linear trend model
+
+summary(fullmodel)
+summary(reducedmodel)
+sprintf("Estimated multiple regression equation for full model: Sales_hat = 214.59413 - 29.86610 D2 - 29.53220 D3 - 3.74830 D4 + 2.56610 t ")
+
+SSE_F <- f$`Sum Sq`[5]
+SSE_R <- r$`Sum Sq`[2]
+MSE_F <- f$`Mean Sq`[5]
+
+Num <- (SSE_R - SSE_F)/3
+Den <- MSE_F
+Partial_F_stat <- Num/Den
+pf(Partial_F_stat, 3, nrow(WinterFun)-4-1, lower.tail = FALSE)
+sprintf("The p-value is 8.72319e-13, smaller than our significance level, so we reject the null hypothesis. we conclude that the full model is better, so we infer at at 0.05 significance level, the seasonal indicators have a statistically significant influence on sales and should be included in the analysis")
+
+### Partial R-squared
+### SSE(reduced) = 9622         
+### SSE (full) = 1810         
+(partial_r_sq <- (9622 - 1810)/9622)
+sprintf("the four seasonal indicator variables explain 81.194 percent of variation in WinterFun company's sales that cannot be explained by the time variable alone.")
+```
+
+# Question 3
+#part a: 
+```{r}
+ED <- read.csv("EmploymentDiscrimination.csv")
+sprintf("Y = \u03B2\u2081 + \u03B2\u2082 D2 + \u03B2\u2083 x + u")
+sprintf("Y is the Salary, D2 = 1 if the individual is a male, = 0 otherwise. X is education level")
+
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+
+Male_Dummy <- ifelse(ED$GENDER == "MALE", 1, 0)   
+
+model_ED <- lm(SALARY~ EDUCAT + Male_Dummy, data = ED)
+summary(model_ED)
+
+sprintf("Salary_hat = 4173.13 + 80.70 Eduation + 691.81 male_dummy")
+
+```
+
+# part b: 
+```{r}
+sprintf("From the output, we can see that both Education and Male_Dummy are significant as the p-value for both is lower than any possible significance level, so there is some evidence of employement discrimination on Gender and education level. Male, on average, earn $694.81 more than females after controlling the education level. Holding everything else consistent, 1 year increase of education leads to $80.7 more on salary earn.")
+```
+
+# part c: 
+```{r}
+sprintf("new model: Salary = \u03B2\u2081 + \u03B2\u2082 D2 + \u03B2\u2083 * X + \u03B2\u2084(d2 * x) + u")
+
+sprintf("H\u2080:  \u03B2\u2084 = 0") #check for interaction
+sprintf("H\u2081:  \u03B2\u2084 ≠ 0") #check for interaction
+
+model_ED_Interaction <- lm(SALARY ~ EDUCAT + Male_Dummy + EDUCAT:Male_Dummy, data = ED)
+summary(model_ED_Interaction)
+sprintf("E(Salary) =4395.32 -274.86 * Male_dummy + 62.13 * Education +  73.59 (Male_dummy * Education) ")
+sprintf(" p-value for the interaction is 0.2503 bigger than any possible significant level, we fail to reject. the Interaction is not significant.so there is no significancce for the interaction effects between eduation and gender and the effect of gender on salary doesn't depend on the level of eduation. ")
+
+```
+
+# part d:
+```{r}
+### Create an interaction plot
+ED_Males <- subset(ED, ED$GENDER == "MALE")
+ED_Females <- subset(ED, ED$GENDER == "FEMALE")
+
+plot(ED$EDUCAT, ED$SALARY, 
+     main = "Interaction Plot",
+     xlab = "Education (in years)",
+     ylab = "Salary (in dollars)",
+     col = ifelse(ED$GENDER == "Male", "blue", "red"))
+legend("topleft", 
+       pch = c(1, 1), 
+       c("Female", "Male"), 
+       col = c("red", "blue"),
+       cex = 0.5)
+abline(lm(ED_Females$SALARY ~ ED_Females$EDUCAT), col = "red")
+abline(lm(ED_Males$SALARY ~ ED_Males$EDUCAT), col = "blue")
+
+sprintf("These two regressions are dissimilar")
+```
+
+# part e: 
+```{r}
+sprintf("on the part a, the p-value for education, male-dummy and intercept are all lower than significant level, which means there are Education and gender both significant effects on salary. The adjusted R^2 here is 0.3492 which means 35 percent of the variation in salary can be explained by the model in part a. And the standard error for part a is 572.4.  
+        on the part c, the p-value for the interaction of education and male-dummy, education and male-dummy are all bigger than significant level, that means the effect of gender on salary doesn't depend on the level of education. The adjusted R^2 here is 0.3516 which means 35 percent of the variation in salary can be explained by the model in part c. And the standard error for part c is 571.4. 
+        comparing the part a and part c, without and with interaction, the R^2 and the standard error are not significantly different. From the first model's individual p-value, we concluded that Education and gender has significant effect, however from the second model, we conclude that the interaction doesn't have a significant effect, this could be because of multilinearity. For part a, the model's global f-text's pvalue is 1.498e-09, and for part c, its 4.557e-09, both are below our significance level so both model seems valid.   ")
+```
+
+# part f: 
+```{r}
+sprintf("full model: Salary = \u03B2\u2081 + \u03B2\u2082 * Education + \u03B2\u2083 Male_dummy + \u03B2\u2084 (Male_dummy * Education) + u")
+sprintf("reduced model: Y = \u03B2\u2081 + \u03B2\u2082 * Education  + u`")
+
+# For full model:
+sprintf("H\u2080: \u03B2\u2083 = \u03B2\u2084 = 0")
+sprintf("H\u2081: at least 1 \u03B2 is not zero")
+
+
+fullmodel<- lm(SALARY ~ EDUCAT + Male_Dummy + EDUCAT:Male_Dummy, data = ED)
+reducedmodel <- lm(SALARY ~ EDUCAT, data = ED)
+
+f <- anova(fullmodel)
+r <- anova(reducedmodel)
+
+summary(fullmodel)
+summary(reducedmodel)
+
+sprintf("estimated multiple regression equation for full model: E(Salary) =4395.32 -274.86 * Male_dummy + 62.13 * Education +  73.59 (Male_dummy * Education)")
+sprintf("estimated multiple regression equation for reduced model: E(salary) = 3818.6 + 128.1 Education")
+
+SSE_F <- f$`Sum Sq`[4]
+SSE_R <- r$`Sum Sq`[2]
+MSE_F <- f$`Mean Sq`[4]
+
+Num <- (SSE_R - SSE_F)/2
+Den <- MSE_F
+Partial_F_stat <- Num/Den
+
+pf(Partial_F_stat, 2, nrow(ED)-3-1, lower.tail = FALSE)
+sprintf("The p-value is 3.798868e-06, smaller than any possible significance level, we reject the null hypothesis. we conclude that the gender dummy and interaction jointly significant in explaining the variations in salaries and should be included in the model. ")
+```
+
+# Part g:
+```{r}
+
+sprintf("The difference between part e and f could be due to multicollinearity (interaction). Multicollinearity causes large F statistics and smaller t statistics, this causes partial-f test to have smaller p value and individual t tests to have larger p-value which causes different results. I would delete the interaction from the model to reduce multicollinearity. ")
+```
+
+# Question 4
+# part a: 
+```{r}
+IceCream <- read.csv("Ice_Cream.csv")
+
+sprintf("Y = \u03B2\u2080 + \u03B2\u2081* X + \u03B2\u2082 * D2 + u ")
+sprintf("Y is the number of customers, X is the temperature, D2 = 1 if weekend, 0 otherwise")
+
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+
+model_IceCream <- lm(Customers ~ Weekend + Temperature, data = IceCream)
+summary(model_IceCream)
+
+sprintf("Estimated multiple regresion model: E(customers) = -74.6949 + 6.9624 * Temperature + 201.8710 * weekend_dummy")
+
+```
+
+# part b: 
+```{r}
+-74.6949 + 6.9624 * 80 + 201.8710 * 1
+sprintf("inputting weekend as 1 and temperature as 80, the number of customers the managers should be expecting is around 685")
+```
+# part c: 
+```{r}
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("The estimated coefficient for Weekend is 201.8710, and the p-value is smaller than 5 percent level, we reject the null hypothesis, which means that the number of customers on the weekend is significantly different (201 more) from those that are not on the weekend. And the p-value for weekend_dummy is 3.80e-13, we reject the null hypothesis on 5 percent significance level, which means that the number of customers on weekends is significantly higher than those not on weekends. This indicates that the store should allocatre more staffing on the weekends as that's when the customers are getting more")
+```
+
+# Question 5
+```{r}
+Fisher_Index<- read.csv("Fisher Index.csv")
+
+sprintf(" Yt = \u03B2\u2081 + \u03B2\u2082 * Xi + ui")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+
+model_FisherIndex <- lm(Y ~ X, data = Fisher_Index)
+summary(model_FisherIndex)
+
+sprintf("E(Y) = 1.2797 + 1.0691 * X")
+sprintf("The adjusted R^2 for the above model with intercept is 0.68.")
+sprintf("The p-value for the intercept coefficient is 0.87194 which is bigger than any significance level, we fail to reject the null hypothesis. This means that the intercept is not significantly different from zero.")
+
+sprintf(" Yt = \u03B2\u2082 * Xi + ui")
+model_RTO <- lm(Y ~ X - 1, data = Fisher_Index)
+summary(model_RTO)
+sprintf("E(Yi) =  1.0899 * Xi")
+
+sum_XY <- sum(Fisher_Index$X * Fisher_Index$Y)
+sum_X_squared <- sum((Fisher_Index$X)^2)
+sum_Y_squared <- sum((Fisher_Index$Y)^2)
+Raw_R_square <- (sum_XY)^2 / (sum_X_squared * sum_Y_squared)
+Raw_R_square
+sprintf("The raw R^2 is 0.7824785 compared to the R^2 on the first model (0.68), we conclude that the second model(regression through origin) is a better fit, so we should not include the intercept in our model")
+
+```
+
+# Question 6
+#part a: 
+```{r}
+CorporateFinancials<- read.csv("CorporateFinancials.csv")
+sprintf("Y = \u03B2\u2081 + \u03B2\u2082 * X + u")
+
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+
+model_CorporateFinancials<- lm(Dividend ~ After_Tax_Profit, data = CorporateFinancials)
+summary(model_CorporateFinancials)
+
+sprintf("E(Y, in billions) = - 19.01325 + 0.6311 * X")
+sprintf("The p-value for the coefficient of after_tax_profit is smaller than any possible significance level, we reject the null hypothesis. We conlcude that there is a linear relationship between dividends payments and after_tax_profit.")
+
+```
+
+# part b:
+```{r}
+
+## Create dummy variables
+Q1 <- ifelse(CorporateFinancials$Quarter == "1", 1, 0)   
+Q2 <- ifelse(CorporateFinancials$Quarter == "2", 1, 0)
+Q3 <- ifelse(CorporateFinancials$Quarter == "3", 1, 0)
+Q4 <- ifelse(CorporateFinancials$Quarter == "4", 1, 0)
+
+# Now create the interaction terms
+Profit_Q2 <- CorporateFinancials$After_Tax_Profit * CorporateFinancials$Q2
+Profit_Q3 <- CorporateFinancials$After_Tax_Profit * CorporateFinancials$Q3
+Profit_Q4 <- CorporateFinancials$After_Tax_Profit * CorporateFinancials$Q4
+
+sprintf("Y = \u03B2\u2080 + \u03B2\u2081 * X  + \u03B2\u2082 * D2 + \u03B2\u2083 * D3 + \u03B2\u2084 * D4 + \u03B2\u2085 * (D2 * X) + \u03B2\u2086 * (D3 * X) + \u03B2\u2087 * (D4 * X) + u")
+sprintf("Y is the dividend in billions, x is the after-tax profit,  D2 = 1 if Q2, 0 otherwise, same for D3 and D4 for Q3 and Q4. D2 * X, D3 * X and D4 * X are interation between profit and each quarter. Q1 is the base in this case.")
+
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2084 = 0")
+sprintf("H\u2081:  \u03B2\u2084 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2085 = 0")
+sprintf("H\u2081:  \u03B2\u2085 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2086 = 0")
+sprintf("H\u2081:  \u03B2\u2086 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2087 = 0")
+sprintf("H\u2081:  \u03B2\u2087 ≠ 0")
+
+model_CF_Season <- lm(CorporateFinancials$Dividend ~ After_Tax_Profit + Q2 + Q3 + Q4 + After_Tax_Profit:Q2  + After_Tax_Profit:Q3 + After_Tax_Profit:Q4, data = CorporateFinancials)
+summary(model_CF_Season)
+
+sprintf("E(Dividend in billions) = -16.27987 + 0.62121 after_tax_profit - 7.96650 Q2 +  22.20074 Q3 - 28.15463 Q4 + 0.01558 (after_tax_profit * Q2) - 0.02169 (after_tax_profit * Q3) + 0.04902 (after_tax_profit * Q4)")
+
+sprintf("The p-value for coefficients except for after tax profit are all bigger than any significance level, we fail to reject null hypothesis for all of them. This indictaes that there is not much evidence of seasonal pattern here on dividend payments. only after_tax_profit has a significant effect on the dividend payments as its p-value is samller than any possible significance level.  ")
+
+
+```
+
+# part c: 
+```{r}
+sprintf("Based on these results, we can infer that there is no clear seasonal pattern in the dividend payment policies of U.S. private corporations. This is what i expected earlier also. As i believe as profit goes up, the dividend payments also goes up. ")
+```
+
+# Question 7
+# part a:
+```{r}
+Mowers <- read.csv("Mowers.csv")
+sprintf("Sales = \u03B2\u2080 + \u03B2\u2081 Temperature + \u03B2\u2082 Advertising + \u03B2\u2083 Discount + u")
+sprintf("H\u2080: \u03B2\u2081 = \u03B2\u2082 = \u03B2\u2083 = 0")
+sprintf("H\u2081: at least 1 \u03B2 is not zero")
+
+#individual t-tests
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+
+model_Mowers <- lm(Sales ~ Temperature + Advertising + Discount, 
+                        data = Mowers)
+summary(model_Mowers)
+
+sprintf("Sales_hat = - 1730.1  + 303.0 Temperature + 505.6 Advertising + 202.2 Discount")
+sprintf("This p-value 1.285e-12 is far below the 0.05 threshold, indicating that the group of explanatory variables jointly have a statistically significant relationship with the dependent variable sales at the 5 percent level.")
+sprintf("Temperature: With a p-value of 0.1008, Temperature is not individually significant at the 5 percent level.
+Advertising: With a p-value of 0.0107, Advertising is individually significant at the 5 percent level.
+Discount: With a p-value of 0.5348, Discount is not individually significant at the 5 percent level.")
+```
+
+# part b:
+```{r}
+car::vif(model_Mowers)
+sprintf("The VIF of 18.430557 for advertsing is quite high. it suggests a serious multicollinearity problem. It means that the variance of the coefficient estimate for Advertising is inflated because it is highly correlated with one or more of the other independent variables in the model.")
+sprintf("2 reasons why its best to do nothing: 1. If the goal of the study is to use the model to predict or forecast, multicollinearity may not be bad. 2.  If the objective of the study is to estimate a group of coefficients (sum or difference of two coefficients) fairly accurately, this can be done in the presence of multicollinearity ")
+```
+
+#Question 8
+```{r}
+PersExpAndCategories <- read.csv("PersExpAndCategories.csv")
+PersExpAndCategories$Time <- 1:15
+Time <- PersExpAndCategories$Time
+PersExpAndCategories$EXPDUR <- as.numeric(gsub(",", "", PersExpAndCategories$EXPDUR))
+ExpDur <- PersExpAndCategories$EXPDUR
+
+### Create a scatterplot of ExpDur versus Time
+plot(Time, ExpDur, main = "Expenditures on durable goods", 
+     xlab = "Time", ylab = "Expenditure on durable goods", pch=16)
+abline(lm(ExpDur ~ Time), col = "red", lwd = 2)
+
+### Now take the log of ExpDur
+LN_ExpDur <- log(ExpDur)
+
+### Create a scatterplot of Ln(ExpDur) versus Time
+plot(Time, LN_ExpDur, main = "Expenditures on durable goods", 
+     xlab = "Time", ylab = "LN_ExpDur", pch=16)
+abline(lm(LN_ExpDur ~ Time), col = "red", lwd = 2)
+
+### Run the regression model now...
+sprintf("LN(ExpDur) = \u03B2\u2080 + \u03B2\u2081 *Time + u")
+
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+
+semilog_model <- lm(LN_ExpDur ~ Time)
+summary(semilog_model)
+
+sprintf("LN(ExpDur)_hat = 6.8949842  + 0.0139948 * Time")
+
+sprintf("The slope coefficient of 0.0139948 means on the average the log of Expenditure on durable goods has been increasing at the rate of 0.0139948 per quarter. The expenditure on the durable goods has been increasing at the rate of 1.399 percent per quarter. This is the instantaneous (at a point in time) growth rate.
+")
+
+### To compute the compound growth rate, we take the 
+### slope to equal ln(1 + r).
+### So r = antilog(0.0139948  ) - 1
+(r <- exp(0.0139948  ) - 1)
+sprintf("So, the compound growth rate is 1.409 percent per year.")
+
+###################################### use Double - log model ######################################################
+LN_ExpDur <- log(ExpDur)
+LN_Time <- log(Time)
+
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+
+sprintf("LN(ExpDur) = \u03B2\u2080 + \u03B2\u2081 *LN(Time) + u")
+Doublelog_model <- lm(LN_ExpDur ~ LN_Time)
+summary(Doublelog_model)
+
+sprintf("LN(ExpDur)_hat = 6.859521  + 0.079261 * Time")
+
+sprintf("A 1 percent increase in Time is associated with an approximately 0.079261 percent increase in expenditure on durable goods. I don't think the double log model makes sense as it doesn't make sense to interpret that time increases by 1 percent. ") 
+```
+
+# Question 9
+#part a: 
+```{r}
+Qualcomm <- read.csv("Qualcomm.csv")
+
+## Create a time-series plot
+# Store the values
+Time <- Qualcomm$time
+Close <- Qualcomm$Close
+
+# Create a line chart
+plot(Time, Close,
+     type = "l",
+     xlab = "Time",
+     ylab = "Stock Price",
+     main = "Stock Price of Qualcomm 1995 - 2000",
+     col = "blue")
+
+sprintf("The stock price was particularly profitable after late 1990")
+```
+
+# part b:
+```{r}
+############################# linear model ################################################################
+sprintf("StockPrice = \u03B2\u2080 + \u03B2\u2081 * Time + u")
+
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+
+Time <- Qualcomm$time
+Close <- Qualcomm$Close
+
+linearmodel <- lm(Close ~ Time)
+summary(linearmodel)
+
+sprintf("StockPrice_hat = -4.69406 + 0.58051 * Time")
+sprintf(" The Linear model doesn't seem to be a a fit. Adjusted R-square = 0.3823 which measn that this model only explains 38.23 percent of the variation of the stockprice. ")
+```
+
+# part c:
+```{r}
+sprintf("StockPrice = \u03B2\u2080 + \u03B2\u2081 * Time + \u03B2\u2082 * Time^2 + u")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+
+model_q2 <- lm(Close ~ poly(Time, 2, raw = TRUE))
+summary(model_q2)
+
+sprintf("StockPrice_hat = 72.6825289  - 1.1914694 * Time + 0.0067892 * Time^2")
+sprintf("Adjusted R-squared increased from 0.3823 to 0.6189 So quadratic model seems to be a better fit. Also, the standard error is smaller as well (55.32  to 43.45")
+```
+
+# part d and e: 
+```{r}
+sprintf("StockPrice = \u03B2\u2080 + \u03B2\u2081 * Time + \u03B2\u2082 * Time^2 + \u03B2\u2083 * Time^3 + u")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+
+model_c <- lm(Close ~ poly(Time, 3, raw = TRUE))
+summary(model_c)
+sprintf("StockPrice_hat = -10.85434540 + 2.61284363 * Time - 0.02958072 * Time^2 + 0.00009290 * Time^3")
+sprintf("Adjusted R-squared increased from 0.6189 to 0.8125 So cubic model seems to be the best fit out of the three models, also the cubic model has the smallest standard error. ")
+```
+
+#Question 10
+# Part a:
+```{r}
+PickErrors <-  read.csv("PickErrors.csv")
+sprintf("Y = \u03B2\u2081 + \u03B2\u2082 * D2 + \u03B2\u2083 * X + u")
+sprintf("Y is the annual pick errors. D2 = 1 if employee attended training, 0 otherwise. X is the years in experience.")
+
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+
+model_PickErrors<- lm(Errors ~ Exper + Train, data = PickErrors)
+summary(model_PickErrors)
+
+sprintf("E(errors) = 37.9305 - 1.2814 Exper - 7.4241 Train_dummy")
+sprintf("The p-value for training is bigger than 10 percent significance level, we fail to reject the null hypothesis, so we conclude that traning is not significant at 10 percent level and doesn't have effect on pick errors.")
+```
+# part b: 
+```{r}
+sprintf("Y = \u03B2\u2081 + \u03B2\u2082 * D2 + \u03B2\u2083 * X + \u03B2\u2084 * (D2 * X) + u")
+sprintf("Y is the annual pick errors. D2 = 1 if employee attended training, 0 otherwise. X is the years in experience.")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2084 = 0")
+sprintf("H\u2081:  \u03B2\u2084 ≠ 0")
+
+model_PickErrors_Interaction<- lm(Errors ~ Exper + Train + Exper:Train, data = PickErrors)
+summary(model_PickErrors_Interaction)
+sprintf("E(errors) = 42.7764 - 1.6991 Exper - 23.1111 Train + 0.9785(Exper * Train)")
+sprintf("we reject the null hypothesis for interaction as p-value for interaction is smaller than 10 percent significance level. The interaction between experience and training has a significant effect on number of pick errors on a 10 percent significant level. Also, the p-value for both experience and training are smaller than our significance level, which indicates that both has significant effect on pick errors. ")
+```
+
+# part c:
+```{r}
+sprintf("As the R^2 for second model is higher, we use the second model.")
+
+42.7764 - 1.6991 * 10 - 23.1111 * 1  + 0.9785 * (10 * 1)
+
+sprintf("the number of pick errors for an employee with 10 years of experience who attended the training program is 12.4593")
+
+42.7764 - 1.6991 * 20 - 23.1111 * 0 + 0.9785 * (20 * 0)
+
+sprintf("the number of pick errors for an employee with 20 years of experience who did not attend the training program is between 8.7944")
+```
+# Question 11
+```{r}
+CompRepair <-  read.csv("CompRepair.csv")
+
+Time <- CompRepair$TIME
+Exper <- CompRepair$EXPER
+Number <- CompRepair$NUMBER
+
+###### Y = Time, X1 = Number, X2 = Experience######################
+sprintf("Y = \u03B2\u2080 + \u03B2\u2081*Number + \u03B2\u2082*Experience")
+model <- lm(TIME ~ NUMBER + EXPER, data=CompRepair) 
+summary(model)
+sprintf("Adjusted R^2 is 0.9478 which seems an okay fit, try another model below ")
+
+###### Y = Time, X1 = Number, X2 = Experience, X3 = Experience^2######################
+sprintf("Y = \u03B2\u2080 + \u03B2\u2081*Number + \u03B2\u2082*Experience + \u03B2\u2082*Experience^2")
+model <- lm(TIME ~ NUMBER + poly(EXPER, 2), data=CompRepair)
+summary(model)
+sprintf("Adjusted R^2 is 0.9464 which decreases alittle bit, try another model below")  
+
+###### Y = Time, X1 = Number, X2 = Experience, X3 = Number^2######################
+sprintf("Y = \u03B2\u2080 + \u03B2\u2081*Number + \u03B2\u2082*Experience + \u03B2\u2082 * Number^2")
+model <- lm(TIME ~ poly(NUMBER, 2) + EXPER, data=CompRepair) 
+summary(model)
+sprintf("Adjusted R^2 is 0.9974. R^2 has increased a lot and the model has improvement, try anotehr model below")
+
+
+##### my choice of model: 
+###### Y = Time, X1 = Number, X2 = Number^2, X3 = Experience, X1=4 = Experience ^2 ######################
+sprintf("Y = \u03B2\u2080 + \u03B2\u2081*Number + \u03B2\u2082*Experience + \u03B2\u2083*Number^2 + \u03B2\u2084*Experience^2 + error")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2084 = 0")
+sprintf("H\u2081:  \u03B2\u2084 ≠ 0")
+model <- lm(TIME ~ poly(NUMBER, 2) + poly(EXPER, 2), data=CompRepair) # 0.9975 
+summary(model)
+sprintf("Adjusted R^2 is 0.9975 which is a really good fit.")
+
+sprintf("Y = 431.900 + 1575.984 * Number + 2.009 * Experience + 349.773 * Number^2 + 18.215 * Experience^2")
+sprintf("Adjusted R-squared increased from 0.9478(first order for both explanatory variables) to 0.9975(second order for both explanatory variables), So quadratic model for both explanotroy variables seems to be a better fit, although the first order term (Experience) and second order term (Experience) are not significant (p-value is bigger than any significance level)")
+
+```
+
+# Question 12
+# Y on X
+```{r}
+GermanMoneySupply <-  read.csv("GermanMoneySupply.csv")
+
+######################################## Y on X ###################################################################
+## part a 
+sprintf("Y = \u03B2\u2080 + \u03B2\u2081 X + u")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+Y <- na.omit(GermanMoneySupply$Y)
+X <- na.omit(GermanMoneySupply$X)
+linearmodel <- lm(Y ~ X)
+summary(linearmodel)
+sprintf("Model: E(Y) = 38.96907 + 0.26088 X")
+
+# part b: 
+sprintf("If the money supply of German market increases by $1 billion, on average, the consumer price index increases by approx. 0.26. When the money supply is $0, the CPI is 38.97. The p-value for the slope coefficient is very small, which means the relationship between x and y is significant. ")
+
+## part c:
+sprintf("The rate of change of Y with respect to X is 0.261 which is consistant (the slope)")
+
+mean_x <- mean(X)
+mean_y <- mean(Y)
+0.26088 * mean_x / mean_y
+
+# part d:
+sprintf("The elasticity of Y with respect to X is slope * (x/y), it changes as x and y changes. i use mean x and mean y to plug into the formula, which is 0.5958108. ")
+
+```
+
+# lnY on lnX
+```{r}
+######################################## lnY on lnX ##################################################################
+sprintf("ln_Y = \u03B2\u2080 + \u03B2\u2081 * ln_X + u")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+ln_Y <- log(Y)
+ln_X <- log(X)
+Double_log_model<- lm(ln_Y ~ ln_X)
+summary(Double_log_model)
+sprintf("E(ln_Y) = 1.40405 + 0.58896 ln_X")
+r <- exp(0.58896) - 1
+exp(1.40405)
+# part b: 
+sprintf("If the money supply of the German market increases by 1 percent, on average, the Consumer Price Index (CPI) is expected to increase by approximately 0.588 percent. This intercept coefficient represents the expected value of the ln_y when ln_X is zero. ln_X would be zero when X is 1, so when the money supply is $1 billion, the CPI is 4.07 (antilog of 1.40405). The p-value for the slope coefficient is very small, which means the relationship between lnx and lny is significant.")
+
+mean_x <- mean(X)
+mean_y <- mean(Y)
+0.58896 * mean_y / mean_x
+## part c:
+sprintf("The rate of change Y with respect to X is slope * (y/x), this rate changes when x and y changes, I calculate it using mean x and mean y in the formula, which is 0.2578803,  ")
+
+# part d: 
+sprintf("The elasticity of Y with respect to X is 0.58896 which is consistant (the slope)")
+```
+
+#lnY on X
+```{r}
+######################################### lnY on X ##################################################################
+sprintf("ln_Y = \u03B2\u2080 + \u03B2\u2081 * X + u")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+ln_Y <- log(Y)
+log_lin_model<- lm(ln_Y ~ X)
+summary(log_lin_model)
+sprintf("E(ln_Y) = 3.9315778 + 0.0027988 X")
+exp(0.0027988)-1
+exp(3.9315778)
+# part b: 
+sprintf("If the money supply of the German market increases by one unit (which is one billion German marks, on average, the Consumer Price Index (CPI) is expected to increase by approximately 0.28 percent. when the money supply is $0, the CPI is expected to be 50.98736 (antilog of 3.9315778). The p-value for the slope coefficient is very small, which means the relationship between x and lny is significant.")
+
+## part c:
+mean_y <- mean(Y)
+0.0027988 * mean_y
+sprintf("The rate of change of y with respect to x is slope * y, it changes as y changes. I use mean y in the formula, which is 0.2698372.")
+
+0.0027988 * mean_x
+# part d: 
+sprintf("The elasticity of Y with respect to X is slope * x, it changes as x changes, i use mean x in the formula which is 0.6162678")
+```
+
+# Y on LnX 
+```{r}
+########################################### Y on LnX ################################################################
+sprintf("Y = \u03B2\u2080 + \u03B2\u2081 * ln_X + u")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+ln_X <- log(X)
+lin_log_model<- lm(Y ~ ln_X)
+summary(lin_log_model)
+sprintf("E(Y) = -192.966 + 54.213 * ln_X")
+
+# part b: 
+sprintf("If the money supply of the German market increases by 1 percent, on average, the CPI increases by approximately 0.54 billion. This intercept coefficient represents the expected value of Y variable when ln_X is zero, ln_X would be zero when X is 1, so when money supply is $1 billion, the CPI is expected to be -192.966, this is meaningless as CPI cannot be negative. the p-value for the coefficient is very small, which suggests that the relationship between log X and Y is statistically significant.")
+
+54.213 * (1 / mean(X))
+## part c:
+sprintf("The rate of change of Y with respect to X is slope * (1/x), which changes as x changes. I use mean x in the formula, which i got 0.2462101")
+
+54.213 * (1 / mean(Y))
+# part d: 
+sprintf("The elasticity of Y with respect to X  is slope * (1/y) which changes as y changes. I use mean y in the formula, which i got 0.5623069.")
+
+```
+
+#Question 13
+# part a: 
+```{r}
+ElectricityCost <-  read.csv("ElectricityCost.csv")
+sprintf("Cost = \u03B2\u2080 + \u03B2\u2081 Temp + \u03B2\u2082 Days + \u03B2\u2083 Tons + u")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+
+linear_model <- lm(Cost ~ Temp + Days + Tons, data=ElectricityCost)
+summary(linear_model)
+sprintf("Estimated model: Cost = 14039.19 + 92.78 * Temp + 446.14 Days - 27.00 Tons ")
+
+sprintf("at 5 percent significant level, only temperature is significance affecting the cost. 1 degrees of temperature increasing causing the price to go up $92.78.")
+```
+
+# part b:
+```{r}
+sprintf("ln(Cost) = \u03B2\u2080 + \u03B2\u2081 Temp + \u03B2\u2082 Days + \u03B2\u2083 Tons + u")
+sprintf("H\u2080:  \u03B2\u2080 = 0")
+sprintf("H\u2081:  \u03B2\u2080 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2082 = 0")
+sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
+sprintf("H\u2080:  \u03B2\u2083 = 0")
+sprintf("H\u2081:  \u03B2\u2083 ≠ 0")
+
+ln_cost <- log(ElectricityCost$Cost)
+exp_model <- lm(ln_cost ~ Temp + Days + Tons, data = ElectricityCost)
+summary(exp_model)
+sprintf("Estimated model: ln(Cost) = 9.700423 + 0.003404 * Temp + 0.018060 Days - 0.001188 Tons ")
+sprintf("at 5 percent significant level, only temperature is significance affecting the cost. 1 degrees of temperature increasing causing the price to go up 0.34 percent.")
+```
+
+# part c:
+```{r}
+sprintf("We cannot compare the two models based on R^2 as these two models have different dependent variabls.")
+```
+
+#Question 14
+#part a:
+```{r}
+GreekEconomy <- read.csv("GreekEconomy.csv")
+sprintf("Cobb-Douglas model: ln(output) = \u03B2\u2080 + \u03B2\u2081 ln(Capital) + \u03B2\u2082 ln(Labor) + u")
+ln_output <- log(GreekEconomy$OUTPUT)
+ln_capital <- log(GreekEconomy$CAPITAL)
+ln_labor <- log(GreekEconomy$LABOR)
+
+sprintf("H\u2080:  \u03B2\u2081 ≤ 0")
+sprintf("H\u2081:  \u03B2\u2081 > 0")
+sprintf("H\u2080:  \u03B2\u2082 ≤ 0")
+sprintf("H\u2081:  \u03B2\u2082 > 0")
+
+CD_Model <- lm(ln_output ~ ln_capital + ln_labor)
+summary(CD_Model)
+
+sprintf("LN(output) = -11.9366 + 0.1398 * LN(capital) + 2.3284 * LN(labor)")
+
+sprintf("The coefficient of 0.1398 of ln(capital) means that holding labor constant, if capital input increases by 1 percent, then on average, the output goes up by 0.1398 percent. The coefficient for ln_capital is not statistically significant (p-value is bigger than any possible significance level), suggesting that the contribution of capital to production in this model is not statistically significant.")
+
+sprintf("The coefficient of 2.3284 of ln(labor) means that holding capital constant, if labor input increases by 1 percent, then on average, the output goes up by 2.33 percent. The coefficient for ln_labor is statistically significant (p-value is smaller than any possible significance level), suggesting that the contribution of labor to production in this model is statistically significant.")
+
+sprintf("The R-squared value is 0.9714, meaning that approximately 97.14 percent of the variability in the logged output is explained by the model. This indicates a very good fit.")
+```
+# part b: 
+```{r}
+output_labor <- GreekEconomy$OUTPUT / GreekEconomy$LABOR
+capital_labor <- GreekEconomy$CLRATIO
+
+ln_output_labor <- log(output_labor)
+ln_capital_labor <- log(capital_labor)
+
+sprintf("Model: ln(output/labor) = \u03B2\u2080 + \u03B2\u2081 ln(capital/labor) + u")
+
+sprintf("H\u2080:  \u03B2\u2081 = 0")
+sprintf("H\u2081:  \u03B2\u2081 ≠ 0")
+
+CD_Model2 <- lm(ln_output_labor ~ ln_capital_labor)
+summary(CD_Model2)
+
+sprintf("ln(output/labor) = -1.15596 + 0.68076  * ln(capital/labor)")
+
+sprintf("The coefficient of 0.68076 of ln(capital/labor) means that, if capital_labor ratio increases by 1 percent, then on average, the output_labor ratio goes up by 0.68 percent. The coefficient for ln(capital/labor) is statistically significant (p-value is smaller than any possible significance level), suggesting that the contribution of capital_labor ratio to output_labor ratio in this model is statistically significant.")
+
+sprintf("The R-squared value is 0.9033, meaning that approximately 90.33 percent of the variability in the logged output_labor is explained by the model. This indicates a good fit.")
+
+```

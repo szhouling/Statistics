@@ -1,0 +1,67 @@
+---
+title: "HW1"
+author: "Zhouling Shen"
+date: "2023-10-04"
+output: html_document
+---
+#Question 1
+```{r}
+ATM <- read.csv("ATM.csv")
+
+arr_0 <- nrow(subset(ATM, Arrivals =="0"))
+arr_1 <- nrow(subset(ATM, Arrivals =="1"))
+arr_2 <- nrow(subset(ATM, Arrivals =="2"))
+arr_3 <- nrow(subset(ATM, Arrivals =="3"))
+arr_4 <- nrow(subset(ATM, Arrivals =="4"))
+arr_5 <- nrow(subset(ATM, Arrivals =="5"))
+
+Obs <- c(arr_0, arr_1, arr_2, arr_3+arr_4+arr_5)
+
+mean <- mean(ATM$Arrivals)
+
+p_0 <- dpois(0, mean)
+p_1 <- dpois(1, mean)
+p_2 <- dpois(2, mean)
+p_3 <- dpois(3, mean)
+p_4 <- dpois(4, mean)
+p_5 <- dpois(5, mean)
+
+sprintf("H\u2080 : p\u2080 = 0.3441538, p\u2081 = 0.3670974, p\u2082 = 0.1957853, p\u2083 = 0.06961254, p\u2084 = 0.01856334, p\u2085 = 0.00396018" )
+sprintf("H\u2081 :At least one proportion differs")
+Exp <- c(p_0, p_1, p_2, 1- p_0- p_1 -p_2)
+
+chisq.test(x = Obs, p = Exp)
+
+pchisq(4.9474, 2, lower.tail = FALSE)
+
+sprintf("The p-value is higher than our significance level, we fail to reject the null hypotehsis. We infer that the number of arrivals per minute does follow poisson distribution")
+```
+
+#Question 2
+```{r}
+
+sprintf("H\u2080: Getting cold is independent of the treatment group")
+sprintf("H\u2081: Getting cold is dependent of the treatment group")
+
+observed <- matrix(c(88, 48, 42, 15, 4, 10), nrow = 2, byrow = TRUE)
+
+chi_squared_test <- chisq.test(observed)
+chi_squared_test
+
+sprintf("As the p-value is bigger than the significance level, we fail to reject the null hypothesis. We infer that getting cold is independent of the treatment groups")
+
+```
+
+#Question 3
+```{r}
+sprintf("H\u2080 : p\u2081 = 0.35, p\u2082 = 0.23, p\u2083 = 0.21, p\u2084 = 0.21" )
+sprintf("H\u2081: At least one proportion differs")
+
+Obs <- c(28, 32, 30, 30)
+Exp <- c(0.35, 0.23, 0.21, 0.21)
+
+chisq.test(x = Obs, p = Exp)
+
+sprintf("The p-value is bigger than the significance level, so we fail to reject the null hypothesis. We infer that the viewing habits of viewers who are 35 years or older are the same when compared to all age groups")
+```
+
