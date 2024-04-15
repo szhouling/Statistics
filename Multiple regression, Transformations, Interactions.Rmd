@@ -1,11 +1,4 @@
----
-title: "HW4"
-author: "Zhouling Shen"
-date: "2023-11-15"
-output: html_document
----
 
-#Question 1
 ```{r}
 Electronics <- read.csv("Electronics.csv")
 
@@ -46,7 +39,6 @@ dt_Dummy: The 'dt_Dummy' has a confidence interval ranging from approximately -3
 
 ```
 
-# Question 2
 #part a: 
 ```{r}
 WinterFun <- read.csv("WinterFun.csv")
@@ -131,7 +123,6 @@ sprintf("The p-value is 8.72319e-13, smaller than our significance level, so we 
 sprintf("the four seasonal indicator variables explain 81.194 percent of variation in WinterFun company's sales that cannot be explained by the time variable alone.")
 ```
 
-# Question 3
 #part a: 
 ```{r}
 ED <- read.csv("EmploymentDiscrimination.csv")
@@ -242,7 +233,6 @@ sprintf("The p-value is 3.798868e-06, smaller than any possible significance lev
 sprintf("The difference between part e and f could be due to multicollinearity (interaction). Multicollinearity causes large F statistics and smaller t statistics, this causes partial-f test to have smaller p value and individual t tests to have larger p-value which causes different results. I would delete the interaction from the model to reduce multicollinearity. ")
 ```
 
-# Question 4
 # part a: 
 ```{r}
 IceCream <- read.csv("Ice_Cream.csv")
@@ -276,7 +266,6 @@ sprintf("H\u2081:  \u03B2\u2082 ≠ 0")
 sprintf("The estimated coefficient for Weekend is 201.8710, and the p-value is smaller than 5 percent level, we reject the null hypothesis, which means that the number of customers on the weekend is significantly different (201 more) from those that are not on the weekend. And the p-value for weekend_dummy is 3.80e-13, we reject the null hypothesis on 5 percent significance level, which means that the number of customers on weekends is significantly higher than those not on weekends. This indicates that the store should allocatre more staffing on the weekends as that's when the customers are getting more")
 ```
 
-# Question 5
 ```{r}
 Fisher_Index<- read.csv("Fisher Index.csv")
 
@@ -305,7 +294,7 @@ sprintf("The raw R^2 is 0.7824785 compared to the R^2 on the first model (0.68),
 
 ```
 
-# Question 6
+
 #part a: 
 ```{r}
 CorporateFinancials<- read.csv("CorporateFinancials.csv")
@@ -369,7 +358,6 @@ sprintf("The p-value for coefficients except for after tax profit are all bigger
 sprintf("Based on these results, we can infer that there is no clear seasonal pattern in the dividend payment policies of U.S. private corporations. This is what i expected earlier also. As i believe as profit goes up, the dividend payments also goes up. ")
 ```
 
-# Question 7
 # part a:
 ```{r}
 Mowers <- read.csv("Mowers.csv")
@@ -403,7 +391,6 @@ sprintf("The VIF of 18.430557 for advertsing is quite high. it suggests a seriou
 sprintf("2 reasons why its best to do nothing: 1. If the goal of the study is to use the model to predict or forecast, multicollinearity may not be bad. 2.  If the objective of the study is to estimate a group of coefficients (sum or difference of two coefficients) fairly accurately, this can be done in the presence of multicollinearity ")
 ```
 
-#Question 8
 ```{r}
 PersExpAndCategories <- read.csv("PersExpAndCategories.csv")
 PersExpAndCategories$Time <- 1:15
@@ -464,7 +451,6 @@ sprintf("LN(ExpDur)_hat = 6.859521  + 0.079261 * Time")
 sprintf("A 1 percent increase in Time is associated with an approximately 0.079261 percent increase in expenditure on durable goods. I don't think the double log model makes sense as it doesn't make sense to interpret that time increases by 1 percent. ") 
 ```
 
-# Question 9
 #part a: 
 ```{r}
 Qualcomm <- read.csv("Qualcomm.csv")
@@ -540,7 +526,6 @@ sprintf("StockPrice_hat = -10.85434540 + 2.61284363 * Time - 0.02958072 * Time^2
 sprintf("Adjusted R-squared increased from 0.6189 to 0.8125 So cubic model seems to be the best fit out of the three models, also the cubic model has the smallest standard error. ")
 ```
 
-#Question 10
 # Part a:
 ```{r}
 PickErrors <-  read.csv("PickErrors.csv")
@@ -591,7 +576,7 @@ sprintf("the number of pick errors for an employee with 10 years of experience w
 
 sprintf("the number of pick errors for an employee with 20 years of experience who did not attend the training program is between 8.7944")
 ```
-# Question 11
+
 ```{r}
 CompRepair <-  read.csv("CompRepair.csv")
 
@@ -640,7 +625,6 @@ sprintf("Adjusted R-squared increased from 0.9478(first order for both explanato
 
 ```
 
-# Question 12
 # Y on X
 ```{r}
 GermanMoneySupply <-  read.csv("GermanMoneySupply.csv")
@@ -754,7 +738,6 @@ sprintf("The elasticity of Y with respect to X  is slope * (1/y) which changes a
 
 ```
 
-#Question 13
 # part a: 
 ```{r}
 ElectricityCost <-  read.csv("ElectricityCost.csv")
@@ -799,7 +782,6 @@ sprintf("at 5 percent significant level, only temperature is significance affect
 sprintf("We cannot compare the two models based on R^2 as these two models have different dependent variabls.")
 ```
 
-#Question 14
 #part a:
 ```{r}
 GreekEconomy <- read.csv("GreekEconomy.csv")
